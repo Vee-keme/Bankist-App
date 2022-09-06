@@ -87,19 +87,29 @@ const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
 
-const displayMovements = function (movements, sort = false) {
+const displayMovements = function (acc, sort = false) {
   containerMovements.innerHTML = '';
 
-  const movs = sort ? movements.slice().sort((a, b) => a - b) : movements;
+  const movs = sort
+    ? acc.movements.slice().sort((a, b) => a - b)
+    : acc.movements;
 
   movs.forEach(function (mov, i) {
     const type = mov > 0 ? 'deposit' : 'withdrawal';
+    //this help to loop over 2 array cause acc.movementsDates[i]; points to the index of the movementdates array
+    const date = new Date(acc.movementsDates[i]);
+    const day = `${date.getDate()}`.padStart(2, '0');
+    const month = `${date.getMonth() + 1}`.padStart(2, '0');
+    const year = date.getFullYear();
+    //build string to rep date
+    const displayDate = `${day}/${month}/${year}`;
 
     const html = `
     <div class="movements__row">
       <div class="movements__type movements__type--${type}">${
       i + 1
     } ${type}</div>
+      <div class="movements__date">${displayDate}</div>
       <div class="movements__value">${mov.toFixed(2)} €</div>
     </div>
     `;
@@ -150,7 +160,7 @@ createUsernames(accounts);
 
 const updateUI = function (acc) {
   //display movements from function written above
-  displayMovements(acc.movements);
+  displayMovements(acc);
 
   //display balance from function written above
   calcDisplayBalance(acc);
@@ -163,6 +173,12 @@ const updateUI = function (acc) {
 
 //LOGIN TO ACCOUNT
 let currentAccount;
+
+//fake login to account
+currentAccount = account1;
+updateUI(currentAccount);
+containerApp.style.opacity = 100;
+
 btnLogin.addEventListener('click', function (e) {
   e.preventDefault();
   currentAccount = accounts.find(
@@ -175,6 +191,17 @@ btnLogin.addEventListener('click', function (e) {
       currentAccount.owner.split(' ')[0]
     }`;
     containerApp.style.opacity = 100;
+
+    //create current date and time
+    const now = new Date();
+    const day = `${now.getDate()}`.padStart(2, '0');
+    const month = `${now.getMonth() + 1}`.padStart(2, '0');
+    const year = now.getFullYear();
+    const hour = `${now.getHours()}`.padStart(2, '0');
+    const min = `${now.getMinutes()}`.padStart(2, '0');
+    //build string to rep date
+    labelDate.textContent = `${day}/${month}/${year}, ${hour}:${min}`;
+
     //clear input fields
     inputLoginUsername.value = inputLoginPin.value = '';
     inputLoginPin.blur();
@@ -203,6 +230,10 @@ btnTransfer.addEventListener('click', function (e) {
     currentAccount.movements.push(-amount);
     receiverAcc.movements.push(amount);
 
+    //add transfer date
+    currentAccount.movementsDates.push(new Date().toISOString());
+    receiverAcc.movementsDates.push(new Date().toISOString());
+
     //update ui
     updateUI(currentAccount);
   }
@@ -215,6 +246,10 @@ btnLoan.addEventListener('click', function (e) {
   if (amount > 0 && currentAccount.movements.some(mov => mov => amount * 0.1)) {
     //add movement
     currentAccount.movements.push(amount);
+
+    //add loan date
+    currentAccount.movementsDates.push(new Date().toISOString());
+
     //update ui
     updateUI(currentAccount);
   }
@@ -396,8 +431,45 @@ const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
 //   );
 //   console.log(movementsUI);
 // });
-console.log(Number.parseInt('30ps'));
-console.log(Number.parseFloat('2.3rem'));
-const randomInt = (max, min) => {
-  Math.floor(Math.random() * (max - main) + 1) + min;
-};
+// console.log(Number.parseInt('30ps'));
+// console.log(Number.parseFloat('2.3rem'));
+// const randomInt = (max, min) => {
+//   Math.floor(Math.random() * (max - main) + 1) + min;
+// };
+
+// labelBalance.addEventListener('click', function () {
+//   [...document.querySelectorAll('.movements__row')].forEach(function (row, i) {
+//     if (i % 2 === 0) {
+//       row.style.backgroundColor = 'orangered';
+//     }
+//     if (i % 3 === 0) {
+//       row.style.backgroundColor = 'blue';
+//     }
+//   });
+// });
+
+// console.log(2 ** 53 - 1);
+
+// console.log(typeof 100000n);
+
+/*
+//CREATE DATE
+//there are 4 ways to create dates
+//1:
+const now = new Date();
+console.log(now);
+//2:
+console.log(new Date('Tue Sep 06 2022 07:25:48'));
+console.log(new Date('september 16 2022'));
+console.log(account1.movementsDates[0]);
+
+console.log(new Date(0));
+*/
+//working with dates
+// const future = new Date(2037, 10, 19, 15, 23);
+// console.log(future);
+// console.log(future.getFullYear());
+// console.log(future.toISOString());
+// console.log(future.getTime());
+// console.log(Date.now());
+// console.log(new Date(2142253380000));
